@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function CreatePost() {
+export const CreatePost = () => {
   const [title, setTilte] = useState<string>("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
@@ -14,10 +14,15 @@ export default function CreatePost() {
           placeholder="What's on your mind?"
           value={title}
           onChange={(e) => setTilte(e.target.value)}
-          className="my-2 w-full rounded-md border border-gray-500 bg-gray-100 p-2 text-lg text-gray-600 outline-none"
+          className="my-2 w-full rounded-md border border-gray-500 bg-gray-100 p-2 text-sm text-gray-600 outline-none"
         ></textarea>
       </div>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2">
+        <p
+          className={`text-sm font-bold ${
+            title.length > 300 ? "text-red-700" : "text-gray-700"
+          }`}
+        >{`${title.length}/300`}</p>
         <button
           disabled={isDisabled}
           type="submit"
@@ -28,4 +33,4 @@ export default function CreatePost() {
       </div>
     </form>
   );
-}
+};

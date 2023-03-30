@@ -1,13 +1,34 @@
-"use client";
-
-import { useState } from "react";
+import { FormEvent, useState } from "react";
+import { api } from "~/utils/api";
+import toast from "react-hot-toast";
+import { TRPCClientError } from "@trpc/client";
 
 export const CreatePost = () => {
   const [title, setTilte] = useState<string>("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
+  const { mutate } = api.post.create.useMutation({
+    onSuccess: () => {
+      setTilte("");
+      setIsDisabled(false);
+      toast.success("Create post succesfully 🔥");
+    },
+    onError: (error) => {
+      if (error instanceof TRPCClientError) {
+        toast.error(`${error.message}`);
+      }
+      setIsDisabled(false);
+    },
+  });
+
+  const handleCreatePost = (e: FormEvent) => {
+    e.preventDefault();
+    setIsDisabled(true);
+    mutate({ title });
+  };
+
   return (
-    <form>
+    <form onSubmit={handleCreatePost}>
       <div className="my-4 flex flex-col">
         <textarea
           name="title"
@@ -26,9 +47,9 @@ export const CreatePost = () => {
         <button
           disabled={isDisabled}
           type="submit"
-          className="rounded-lg bg-teal-600 px-6 py-2 text-sm text-white"
+          className="cursor-pointer rounded-lg bg-teal-600 px-6 py-2 text-sm text-white hover:bg-teal-700 disabled:bg-teal-400"
         >
-          Create a post
+          {isDisabled ? "Creating..." : "Create a post"}
         </button>
       </div>
     </form>

@@ -1,5 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
+import { Toaster } from "react-hot-toast";
 
 import { CreatePost, Layout } from "~/components";
 
@@ -16,6 +17,7 @@ const Home: NextPage = () => {
           <h2>Post It!</h2>
           <CreatePost />
         </section>
+        <Toaster />
       </Layout>
     </>
   );

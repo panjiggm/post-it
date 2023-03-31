@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { TRPCClientError } from "@trpc/client";
 
 export const CreatePost = () => {
+  const utils = api.useContext();
+
   const [title, setTilte] = useState<string>("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
@@ -12,6 +14,7 @@ export const CreatePost = () => {
       setTilte("");
       setIsDisabled(false);
       toast.success("Create post succesfully 🔥");
+      utils.post.getAll.invalidate();
     },
     onError: (error) => {
       if (error instanceof TRPCClientError) {
@@ -28,7 +31,7 @@ export const CreatePost = () => {
   };
 
   return (
-    <form onSubmit={handleCreatePost}>
+    <form onSubmit={handleCreatePost} className="mb-8">
       <div className="my-4 flex flex-col">
         <textarea
           name="title"

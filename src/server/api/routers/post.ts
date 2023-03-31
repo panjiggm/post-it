@@ -1,9 +1,33 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { onTRPCError } from "~/utils/onTRPCError";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const postRouter = createTRPCRouter({
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.post.findMany({
+      include: {
+        user: true,
+        comments: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }),
+  getMyPost: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.post.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      include: {
+        user: true,
+        comments: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }),
   create: protectedProcedure
     .input(z.object({ title: z.string() }))
     .mutation(({ ctx, input }) => {

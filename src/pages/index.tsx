@@ -2,9 +2,12 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 
-import { CreatePost, Layout } from "~/components";
+import { CreatePost, Layout, Post } from "~/components";
+import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
+  const { data, isLoading } = api.post.getAll.useQuery();
+
   return (
     <>
       <Head>
@@ -13,10 +16,11 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <section>
-          <h2>Post It!</h2>
-          <CreatePost />
-        </section>
+        <CreatePost />
+        {isLoading && <div>Loading...</div>}
+        {data?.map((post) => (
+          <Post key={post.id} post={post} />
+        ))}
         <Toaster />
       </Layout>
     </>

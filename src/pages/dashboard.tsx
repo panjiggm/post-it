@@ -8,8 +8,6 @@ const Dashboard: NextPage = () => {
   const { data: session } = useSession();
   const { data } = api.post.getMyPost.useQuery();
 
-  console.log("my post", data);
-
   return (
     <main>
       <Head>

@@ -1,12 +1,13 @@
 import { type NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { Toaster } from "react-hot-toast";
 
-import { CreatePost, Layout, Post } from "~/components";
+import { CreatePost, Layout, Post, RequiredLogin } from "~/components";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const { data, isLoading } = api.post.getAll.useQuery();
+  const { data: session } = useSession();
 
   return (
     <>
@@ -16,12 +17,15 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <CreatePost />
+        {session ? (
+          <CreatePost />
+        ) : (
+          <RequiredLogin text="Please Sign In to interact with post(s)" />
+        )}
         {isLoading && <div>Loading...</div>}
         {data?.map((post) => (
           <Post key={post.id} post={post} />
         ))}
-        <Toaster />
       </Layout>
     </>
   );

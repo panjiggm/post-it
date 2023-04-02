@@ -1,10 +1,11 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { TRPCClientError } from "@trpc/client";
 
 export const CreatePost = () => {
   const utils = api.useContext();
+  const toasPostId = useRef<string>("");
 
   const [title, setTilte] = useState<string>("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -13,12 +14,12 @@ export const CreatePost = () => {
     onSuccess: () => {
       setTilte("");
       setIsDisabled(false);
-      toast.success("Create post succesfully 🔥");
+      toast.success("Create post succesfully 🔥", { id: toasPostId.current });
       utils.post.getAll.invalidate();
     },
     onError: (error) => {
       if (error instanceof TRPCClientError) {
-        toast.error(`${error.message}`);
+        toast.error(`${error.message}`, { id: toasPostId.current });
       }
       setIsDisabled(false);
     },
@@ -26,6 +27,7 @@ export const CreatePost = () => {
 
   const handleCreatePost = (e: FormEvent) => {
     e.preventDefault();
+    toasPostId.current = toast.loading("Creating your post...");
     setIsDisabled(true);
     mutate({ title });
   };

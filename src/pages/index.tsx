@@ -1,13 +1,33 @@
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
+import { useEffect } from "react";
 
 import { CreatePost, Layout, Post, RequiredLogin } from "~/components";
+import useScrollPosition from "~/hooks/useScrollPosition";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-  const { data, isLoading } = api.post.getAll.useQuery();
   const { data: session } = useSession();
+  const scrollPosition = useScrollPosition();
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetching } =
+    api.post.getAll.useInfiniteQuery(
+      {
+        limit: 5,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
+
+  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+
+  useEffect(() => {
+    if (scrollPosition > 90 && hasNextPage && !isFetching) {
+      fetchNextPage();
+    }
+  }, [scrollPosition, fetchNextPage, hasNextPage, isFetching]);
 
   return (
     <>
@@ -23,9 +43,17 @@ const Home: NextPage = () => {
           <RequiredLogin text="Please Sign In to interact with post(s)" />
         )}
         {isLoading && <div>Loading...</div>}
-        {data?.map((post) => (
+        {posts?.map((post) => (
           <Post key={post.id} post={post} />
         ))}
+
+        {isFetching && <p>Fetching...</p>}
+
+        {!hasNextPage && (
+          <div>
+            <p>No more post</p>
+          </div>
+        )}
       </Layout>
     </>
   );

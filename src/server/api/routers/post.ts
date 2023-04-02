@@ -4,24 +4,48 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { ratelimit } from "~/utils/retelimit";
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.post.findMany({
-      include: {
-        user: true,
-        comments: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          include: {
-            user: true,
+  getAll: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(5).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 5;
+      const { cursor } = input;
+
+      const posts = await ctx.prisma.post.findMany({
+        include: {
+          user: true,
+          comments: {
+            orderBy: {
+              createdAt: "desc",
+            },
+            include: {
+              user: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-  }),
+        orderBy: {
+          createdAt: "desc",
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        take: limit + 1,
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+
+      if (posts.length > limit) {
+        const nextItem = posts.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        posts,
+        nextCursor,
+      };
+    }),
   getMyPost: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.post.findMany({
       where: {

@@ -2,6 +2,7 @@ import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { Roboto } from "next/font/google";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { api } from "~/utils/api";
 
@@ -22,6 +23,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <main className={roboto.className}>
         <Component {...pageProps} />
       </main>
+      <ReactQueryDevtools initialIsOpen={false} />
     </SessionProvider>
   );
 };

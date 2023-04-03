@@ -6,6 +6,9 @@ import { useSession } from "next-auth/react";
 import { Toggle } from "./Toggle";
 import { toast } from "react-hot-toast";
 
+// Icons
+import { MdDelete } from "react-icons/md";
+
 interface CommentType {
   comment: RouterOutputs["comment"]["getAll"][0];
 }
@@ -64,10 +67,11 @@ export const Comment: FC<CommentType> = ({ comment }) => {
       <div>
         {session?.user.id === comment.userId && (
           <button
-            className="text-xs font-bold text-red-600"
+            className="flex gap-0.5 text-xs font-bold text-red-600"
             onClick={() => setToggle(true)}
           >
-            Delete
+            <MdDelete className="text-sm" />
+            <span>Delete</span>
           </button>
         )}
       </div>

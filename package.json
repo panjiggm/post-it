@@ -25,10 +25,12 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.4.0",
+    "react-icons": "^4.8.0",
     "superjson": "1.12.2",
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^4.28.0",
     "@types/eslint": "^8.21.3",
     "@types/node": "^18.15.5",
     "@types/prettier": "^2.7.2",

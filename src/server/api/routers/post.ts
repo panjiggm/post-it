@@ -14,6 +14,7 @@ export const postRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 5;
       const { cursor } = input;
+      const userId = ctx.session?.user?.id;
 
       const posts = await ctx.prisma.post.findMany({
         include: {
@@ -24,6 +25,14 @@ export const postRouter = createTRPCRouter({
             },
             include: {
               user: true,
+            },
+          },
+          likes: {
+            where: {
+              userId,
+            },
+            select: {
+              userId: true,
             },
           },
         },
@@ -47,9 +56,11 @@ export const postRouter = createTRPCRouter({
       };
     }),
   getMyPost: protectedProcedure.query(({ ctx }) => {
+    const userId = ctx.session?.user?.id;
+
     return ctx.prisma.post.findMany({
       where: {
-        userId: ctx.session.user.id,
+        userId,
       },
       include: {
         user: true,
@@ -61,6 +72,14 @@ export const postRouter = createTRPCRouter({
             user: true,
           },
         },
+        likes: {
+          where: {
+            userId,
+          },
+          select: {
+            userId: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -70,6 +89,8 @@ export const postRouter = createTRPCRouter({
   postDetail: publicProcedure
     .input(z.object({ postId: z.string() }))
     .query(({ ctx, input }) => {
+      const userId = ctx.session?.user?.id;
+
       return ctx.prisma.post.findUnique({
         where: {
           id: input.postId,
@@ -82,6 +103,14 @@ export const postRouter = createTRPCRouter({
             },
             include: {
               user: true,
+            },
+          },
+          likes: {
+            where: {
+              userId,
+            },
+            select: {
+              userId: true,
             },
           },
         },
@@ -125,6 +154,40 @@ export const postRouter = createTRPCRouter({
       return ctx.prisma.post.delete({
         where: {
           id: input.id,
+        },
+      });
+    }),
+  like: protectedProcedure
+    .input(z.object({ postId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      return ctx.prisma.likePost.create({
+        data: {
+          post: {
+            connect: {
+              id: input.postId,
+            },
+          },
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      });
+    }),
+  unlike: protectedProcedure
+    .input(z.object({ postId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      return ctx.prisma.likePost.delete({
+        where: {
+          postId_userId: {
+            postId: input.postId,
+            userId,
+          },
         },
       });
     }),

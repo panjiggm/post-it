@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
@@ -10,6 +11,7 @@ import { api } from "~/utils/api";
 const Home: NextPage = () => {
   const { data: session } = useSession();
   const scrollPosition = useScrollPosition();
+  const client = useQueryClient();
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetching } =
     api.post.getAll.useInfiniteQuery(
@@ -44,7 +46,7 @@ const Home: NextPage = () => {
         )}
         {isLoading && <div>Loading...</div>}
         {posts?.map((post) => (
-          <Post key={post.id} post={post} />
+          <Post key={post.id} post={post} client={client} />
         ))}
 
         {isFetching && <p>Fetching...</p>}

@@ -15,7 +15,7 @@ import { Toggle } from "./Toggle";
 import { InfiniteData, QueryClient } from "@tanstack/react-query";
 
 interface PostType {
-  post: RouterOutputs["post"]["getAll"]["posts"][0];
+  post: RouterOutputs["post"]["getAll"]["posts"][number];
   client?: QueryClient;
 }
 

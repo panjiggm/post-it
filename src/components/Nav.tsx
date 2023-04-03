@@ -8,7 +8,7 @@ export const Nav = () => {
   return (
     <nav className="flex items-center justify-between py-8">
       <Link href="/">
-        <h1 className="text-lg font-bold">Send it.</h1>
+        <h1 className="text-lg font-bold">Post a Chuaks</h1>
       </Link>
       <ul className="flex items-center gap-6">
         {!session?.user && (

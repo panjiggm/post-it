@@ -131,6 +131,7 @@ export const postRouter = createTRPCRouter({
       if (!title.length) {
         void onTRPCError("BAD_REQUEST", "Please do not leave this empty!");
       }
+      // Limit request
       if (!success) {
         void onTRPCError(
           "TOO_MANY_REQUESTS",

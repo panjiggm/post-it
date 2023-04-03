@@ -13,6 +13,7 @@ import { MdDelete } from "react-icons/md";
 
 import { Toggle } from "./Toggle";
 import { InfiniteData, QueryClient } from "@tanstack/react-query";
+import { TRPCClientError } from "@trpc/client";
 
 interface PostType {
   post: RouterOutputs["post"]["getAll"]["posts"][number];
@@ -72,8 +73,6 @@ export const Post: FC<PostType> = ({ post, client }) => {
   const userId = session?.user?.id;
   const userLike = post.likes?.some((like) => like.userId === userId);
 
-  console.log("userLike", userLike);
-
   // State
   const [toggle, setToggle] = useState<boolean>(false);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -87,7 +86,7 @@ export const Post: FC<PostType> = ({ post, client }) => {
       setIsDisabled(false);
     },
     onError: () => {
-      toast.success("Error deleting a post");
+      toast.error("Error deleting a post");
     },
   });
 
@@ -97,12 +96,26 @@ export const Post: FC<PostType> = ({ post, client }) => {
       updateCache({ client, data, variables, action: "like" });
       toast.success("You liked the post ❤️");
     },
+    onError: (error) => {
+      if (error instanceof TRPCClientError) {
+        if (error.data.httpStatus === 401) {
+          toast.error("Please Sign In Bestie 🤪");
+        }
+      }
+    },
   });
 
   // Unlike Mutation
   const { mutateAsync: unlikePost } = api.post.unlike.useMutation({
     onSuccess: (data, variables) => {
       updateCache({ client, data, variables, action: "unlike" });
+    },
+    onError: (error) => {
+      if (error instanceof TRPCClientError) {
+        if (error.data.httpStatus === 401) {
+          toast.error("Please Sign In Bestie 🤪");
+        }
+      }
     },
   });
 

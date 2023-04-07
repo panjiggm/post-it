@@ -21,6 +21,17 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <main className={roboto.className}>
+        <div className="flex w-full items-center justify-center pt-1 text-xs text-teal-900">
+          Made with ❤️ by:{" "}
+          <a
+            href="https://www.panjiggm.com/"
+            rel="noopener"
+            target="_blank"
+            className="underline"
+          >
+            @panjiggm
+          </a>
+        </div>
         <Component {...pageProps} />
       </main>
       <ReactQueryDevtools initialIsOpen={false} />

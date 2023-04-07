@@ -77,8 +77,17 @@ model Post {
     published Boolean    @default(false)
     user      User?      @relation(fields: [userId], references: [id])
     userId    String?
+    images    Image[]
     comments  Comment[]
     likes     LikePost[]
+}
+
+model Image {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    url       String
+    post      Post?    @relation(fields: [postId], references: [id])
+    postId    String?
 }
 
 model Comment {

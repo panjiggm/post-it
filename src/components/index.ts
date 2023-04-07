@@ -1,9 +1,11 @@
 export * from "./Layout";
 export * from "./Nav";
-export * from "./CreatePost";
-export * from "./Post";
 export * from "./Toggle";
 export * from "./RequiredLogin";
+
+// post
+export * from "./post/CreatePost";
+export * from "./post";
 
 // dashboard
 

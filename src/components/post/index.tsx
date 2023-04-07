@@ -11,9 +11,10 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BiCommentDetail } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 
-import { Toggle } from "./Toggle";
+import { Toggle } from "../Toggle";
 import { InfiniteData, QueryClient } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
+import { Attachments } from "./Attachments";
 
 interface PostType {
   post: RouterOutputs["post"]["getAll"]["posts"][number];
@@ -153,6 +154,11 @@ export const Post: FC<PostType> = ({ post, client }) => {
       <div className="my-5">
         <div className="break-all text-sm text-gray-800">{post.title}</div>
       </div>
+      {post.images && (
+        <div className="mb-5">
+          <Attachments attachments={post.images} />
+        </div>
+      )}
       <div className="flex cursor-pointer items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <Link href={`/post/${post.id}`} className="flex items-center gap-1">
@@ -169,6 +175,9 @@ export const Post: FC<PostType> = ({ post, client }) => {
             <p className="text-xs font-bold text-gray-700">
               {post.likes.length} Likes
             </p>
+            {userLike && (
+              <p className="text-xs font-bold text-gray-700">bisa</p>
+            )}
           </button>
         </div>
         {session?.user.id === post.userId && (

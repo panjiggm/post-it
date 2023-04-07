@@ -35,6 +35,7 @@ export const postRouter = createTRPCRouter({
               userId: true,
             },
           },
+          images: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -80,6 +81,7 @@ export const postRouter = createTRPCRouter({
             userId: true,
           },
         },
+        images: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -113,6 +115,7 @@ export const postRouter = createTRPCRouter({
               userId: true,
             },
           },
+          images: true,
         },
       });
     }),

@@ -1,7 +1,7 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { RouterOutputs, api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { formatDistance } from "date-fns";
@@ -50,7 +50,7 @@ function updateCache({
             if (post.id === variables.postId) {
               return {
                 ...post,
-                likes: action === "like" ? [data.userId] : [],
+                likes: action === "like" ? [{ userId: data.userId }] : [],
               };
             }
 
@@ -72,11 +72,15 @@ export const Post: FC<PostType> = ({ post, client }) => {
   const utils = api.useContext();
   const hasLike = post.likes.length > 0;
   const userId = session?.user?.id;
-  const userLike = post.likes?.some((like) => like.userId === userId);
 
   // State
   const [toggle, setToggle] = useState<boolean>(false);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [likeDisabled, setLikeDisabled] = useState<boolean>(false);
+
+  const userLike = useMemo(() => {
+    return post.likes?.some((like) => like.userId === userId);
+  }, [post]);
 
   // Delete Mutation
   const { mutate: deletePost } = api.post.delete.useMutation({
@@ -92,10 +96,12 @@ export const Post: FC<PostType> = ({ post, client }) => {
   });
 
   // Like Mutation
-  const { mutateAsync: likePost } = api.post.like.useMutation({
+  const { mutate: likePost } = api.post.like.useMutation({
     onSuccess: (data, variables) => {
       updateCache({ client, data, variables, action: "like" });
+      // utils.post.getAll.invalidate();
       toast.success("You liked the post ❤️");
+      setLikeDisabled(false);
     },
     onError: (error) => {
       if (error instanceof TRPCClientError) {
@@ -107,9 +113,11 @@ export const Post: FC<PostType> = ({ post, client }) => {
   });
 
   // Unlike Mutation
-  const { mutateAsync: unlikePost } = api.post.unlike.useMutation({
+  const { mutate: unlikePost } = api.post.unlike.useMutation({
     onSuccess: (data, variables) => {
       updateCache({ client, data, variables, action: "unlike" });
+      // utils.post.getAll.invalidate();
+      setLikeDisabled(false);
     },
     onError: (error) => {
       if (error instanceof TRPCClientError) {
@@ -126,6 +134,8 @@ export const Post: FC<PostType> = ({ post, client }) => {
   };
 
   const handleLikePost = () => {
+    setLikeDisabled(true);
+
     if (hasLike) {
       unlikePost({ postId: post.id });
       return;
@@ -168,16 +178,17 @@ export const Post: FC<PostType> = ({ post, client }) => {
             </p>
           </Link>
 
-          <button className="flex items-center gap-1" onClick={handleLikePost}>
+          <button
+            className="flex items-center gap-1 disabled:opacity-50"
+            disabled={likeDisabled}
+            onClick={handleLikePost}
+          >
             <AiFillHeart
               className={`${userLike ? "text-red-600" : "text-gray-500"}`}
             />
             <p className="text-xs font-bold text-gray-700">
               {post.likes.length} Likes
             </p>
-            {userLike && (
-              <p className="text-xs font-bold text-gray-700">bisa</p>
-            )}
           </button>
         </div>
         {session?.user.id === post.userId && (
